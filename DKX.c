@@ -625,7 +625,7 @@ int find_area()
             }
         }
         if (j == row_area)
-            sum_result[i] = 99999;
+            price_cost_lf_result[i] = 99999999;
     }
 
     return 0;
@@ -653,14 +653,22 @@ int write_csv_result()
         "ÔÓ·Ñ", 
         "×Ü·ÑÓÃ");
     for(i = 0; i < num_result; i++)
-        fprintf(fp, "%s,%s,%s,%lf,%lf,%lf,%lf\n", 
-            name_trans[name_trans_id_result[i]], 
-            code_trans[code_trans_id_result[i]], 
-            area_area[area_area_id_result[i]], 
-            weight_input, 
-            price_cost_lf_result[i], 
-            price_cost_other_lf_result[i], 
-            sum_result[i]);
+    {
+        if (sum_result[i] < 99999999)
+            fprintf(fp, "%s,%s,%s,%lf,%lf,%lf,%lf\n", 
+                name_trans[name_trans_id_result[i]], 
+                code_trans[code_trans_id_result[i]], 
+                area_area[area_area_id_result[i]], 
+                weight_input, 
+                price_cost_lf_result[i], 
+                price_cost_other_lf_result[i], 
+                sum_result[i]);
+        else
+            fprintf(fp, "%s,%s,%s\n", 
+                name_trans[name_trans_id_result[i]], 
+                code_trans[code_trans_id_result[i]], 
+                "¸ÃÅÉËÍ·½Ê½²»Ö§³Ö¸Ã¹ú¼Ò");
+    }
 
     fclose(fp);
 
@@ -685,6 +693,7 @@ int get_price_cost()
     int i, j;
 
     for (i = 0; i < num_result; i++)
+    {
         for (j = 0; j < row_cost; j++)
             if (!strcmp(name_cost[j], name_area[name_area_id_result[i]]) && 
                 !strcmp(area_cost[j], area_area[area_area_id_result[i]]))
@@ -694,10 +703,14 @@ int get_price_cost()
                     weight_input <=weight_end_cost_lf[j])
                 {
                     price_cost_lf_result[i] = weight_input * price_cost_lf[j] / weight_average_cost_lf[j] * discount_cost_lf[j];
+                    break;
                 }
-
-                break;
             }
+        if (j == row_cost && 
+            price_cost_lf_result[i] >= 0.000000 && 
+            price_cost_lf_result[i] <= 0.000001)
+            price_cost_lf_result[i] = 99999999;
+    }
     return 0;
 }
 
@@ -720,16 +733,15 @@ int get_price_cost_other()
                         flag = 1;
                         break;
                     }
-                if (flag == 0)
+                if (flag == 0)                                                                      //Èç¹ûÔÓ·ÑÃ»ÓĞ°ó¶¨¸Ã²Ö¿â£¬ÔòÔÓ·ÑÎª0
                     break;
                 if (!strcmp(type_cost_other[j], "Æ±") && 
                     weight_input > weight_start_cost_other_lf[j] && 
                     weight_input <=weight_end_cost_other_lf[j])
                 {
                     price_cost_other_lf_result[i] = price_cost_other_lf[j] * discount_cost_other_lf[j];
+                    break;
                 }
-
-                break;
             }
     }
     return 0;
@@ -763,14 +775,22 @@ int run()
         "ÔÓ·Ñ", 
         "×Ü·ÑÓÃ");
     for (i = 0; i < num_result; i++)
-        printf("%s,%s,%s,%lf,%lf,%lf,%lf\n", 
-            name_trans[name_trans_id_result[i]], 
-            code_trans[code_trans_id_result[i]], 
-            area_area[area_area_id_result[i]], 
-            weight_input, 
-            price_cost_lf_result[i], 
-            price_cost_other_lf_result[i], 
-            sum_result[i]);
+    {
+        if (sum_result[i] < 99999999)
+            printf("%s,%s,%s,%lf,%lf,%lf,%lf\n", 
+                name_trans[name_trans_id_result[i]], 
+                code_trans[code_trans_id_result[i]], 
+                area_area[area_area_id_result[i]], 
+                weight_input, 
+                price_cost_lf_result[i], 
+                price_cost_other_lf_result[i], 
+                sum_result[i]);
+        else
+            printf("%s,%s,%s\n", 
+                name_trans[name_trans_id_result[i]], 
+                code_trans[code_trans_id_result[i]], 
+                "¸ÃÅÉËÍ·½Ê½²»Ö§³Ö¸Ã¹ú¼Ò");
+    }
 
     printf("\n");
 >>>>>>> 1.ä¿®æ”¹äº†æ‚è´¹è®¡ç®—é”™è¯¯çš„é—®é¢˜;2.æ·»åŠ äº†æ‚è´¹çš„è®¡è´¹åœ°ç‚¹çš„éªŒè¯;3.ä¿®æ”¹äº†åç§°é”™è¯¯çš„é—®é¢˜
@@ -784,6 +804,9 @@ int main()
         return -1;
     prepare_data();
 
+    memset(price_cost_lf_result, 0, sizeof(price_cost_lf_result));
+    memset(price_cost_other_lf_result, 0, sizeof(price_cost_other_lf_result));
+    memset(sum_result, 0, sizeof(sum_result));
     if (get_input())
         return -1;
 

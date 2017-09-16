@@ -5,15 +5,15 @@
 #define MAX_NUM_READ_FILE_LINE 1024                         //文件读取时，每行最大字节数
 #define MAX_NUM_ROW 300                                     //数据行的最大数量
 #define MAX_NUM_COLUMN 10                                   //数据列的最大数量
-#define MAX_NUM_STRING 30                                   //字符串长度
-#define MAX_NUM_INT 8                                       //数字长度
+#define MAX_NUM_STRING 50                                   //字符串长度
+#define MAX_NUM_STRINGS 500                                 //超长字符串长度
+#define MAX_NUM_DOUBLE_STRING 16                            //数字字符串长度
 #define IF_WRITE_CSV 0                                      //是否输出测试数据到文件
 
 #define MAX_NUM_WAREHOUSE 50                                //“仓库”最大数
 #define MAX_NUM_COUNTRY 300                                 //“国家”最大数
 #define MAX_NUM_TRANS 300                                   //“运输方式”最大数
 #define MAX_NUM_AREA 300                                    //“分区方案”最大数
-#define MAX_NUM_AREA_COUNT 500                              //“分区方案-国家”最大数
 #define MAX_NUM_COST 300                                    //“物流费用”最大数
 #define MAX_NUM_ADDRESS 300                                 //“计费地点”最大数
 #define MAX_NUM_COST_OTHER 300                              //“物流杂费”最大数
@@ -35,18 +35,18 @@ char ware_trans[MAX_NUM_TRANS][MAX_NUM_STRING], head_ware_trans[MAX_NUM_STRING];
 int row_area;                                               //“分区方案”表
 char name_area[MAX_NUM_AREA][MAX_NUM_STRING], head_name_area[MAX_NUM_STRING];
 char code_area[MAX_NUM_AREA][MAX_NUM_STRING], head_code_area[MAX_NUM_STRING];
-char area_area[MAX_NUM_AREA][MAX_NUM_INT], head_area_area[MAX_NUM_STRING];
-char country_area[MAX_NUM_AREA][MAX_NUM_AREA_COUNT], head_country_area[MAX_NUM_STRING];
+char area_area[MAX_NUM_AREA][MAX_NUM_STRING], head_area_area[MAX_NUM_STRING];
+char country_area[MAX_NUM_AREA][MAX_NUM_STRINGS], head_country_area[MAX_NUM_STRING];
 
 int row_cost;                                               //“物流费用”表
 char name_cost[MAX_NUM_COST][MAX_NUM_STRING], head_name_cost[MAX_NUM_STRING];
-char area_cost[MAX_NUM_COST][MAX_NUM_INT], head_area_cost[MAX_NUM_STRING];
+char area_cost[MAX_NUM_COST][MAX_NUM_STRING], head_area_cost[MAX_NUM_STRING];
 char type_cost[MAX_NUM_COST][MAX_NUM_STRING], head_type_cost[MAX_NUM_STRING];
-char weight_start_cost[MAX_NUM_COST][MAX_NUM_INT], head_weight_start_cost[MAX_NUM_STRING];
-char weight_end_cost[MAX_NUM_COST][MAX_NUM_INT], head_weight_end_cost[MAX_NUM_STRING];
-char weight_average_cost[MAX_NUM_COST][MAX_NUM_INT], head_weight_average_cost[MAX_NUM_STRING];
-char price_cost[MAX_NUM_COST][MAX_NUM_INT], head_price_cost[MAX_NUM_STRING];
-char discount_cost[MAX_NUM_COST][MAX_NUM_INT], head_discount_cost[MAX_NUM_STRING];
+char weight_start_cost[MAX_NUM_COST][MAX_NUM_DOUBLE_STRING], head_weight_start_cost[MAX_NUM_STRING];
+char weight_end_cost[MAX_NUM_COST][MAX_NUM_DOUBLE_STRING], head_weight_end_cost[MAX_NUM_STRING];
+char weight_average_cost[MAX_NUM_COST][MAX_NUM_DOUBLE_STRING], head_weight_average_cost[MAX_NUM_STRING];
+char price_cost[MAX_NUM_COST][MAX_NUM_DOUBLE_STRING], head_price_cost[MAX_NUM_STRING];
+char discount_cost[MAX_NUM_COST][MAX_NUM_DOUBLE_STRING], head_discount_cost[MAX_NUM_STRING];
 double weight_start_cost_lf[MAX_NUM_COST];
 double weight_end_cost_lf[MAX_NUM_COST];
 double weight_average_cost_lf[MAX_NUM_COST];
@@ -59,12 +59,12 @@ char ware_address[MAX_NUM_ADDRESS][MAX_NUM_STRING], head_ware_address[MAX_NUM_ST
 
 int row_cost_other;                                         //“物流杂费”表
 char name_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_STRING], head_name_cost_other[MAX_NUM_STRING];
-char area_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_INT], head_area_cost_other[MAX_NUM_STRING];
+char area_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_STRING], head_area_cost_other[MAX_NUM_STRING];
 char type_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_STRING], head_type_cost_other[MAX_NUM_STRING];
-char weight_start_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_INT], head_weight_start_cost_other[MAX_NUM_STRING];
-char weight_end_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_INT], head_weight_end_cost_other[MAX_NUM_STRING];
-char price_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_INT], head_price_cost_other[MAX_NUM_STRING];
-char discount_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_INT], head_discount_cost_other[MAX_NUM_STRING];
+char weight_start_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_DOUBLE_STRING], head_weight_start_cost_other[MAX_NUM_STRING];
+char weight_end_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_DOUBLE_STRING], head_weight_end_cost_other[MAX_NUM_STRING];
+char price_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_DOUBLE_STRING], head_price_cost_other[MAX_NUM_STRING];
+char discount_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_DOUBLE_STRING], head_discount_cost_other[MAX_NUM_STRING];
 double weight_start_cost_other_lf[MAX_NUM_COST_OTHER];
 double weight_end_cost_other_lf[MAX_NUM_COST_OTHER];
 double price_cost_other_lf[MAX_NUM_COST_OTHER];
@@ -596,7 +596,7 @@ int get_input_country()
 
 int get_input_weight()
 {
-    char tmp[MAX_NUM_STRING];
+    char tmp[MAX_NUM_DOUBLE_STRING];
 
     while (1)
     {
@@ -721,7 +721,8 @@ int get_price_cost()
             {
                 if (!strcmp(type_cost[j], "单价") && 
                     weight_input > weight_start_cost_lf[j] && 
-                    weight_input <=weight_end_cost_lf[j])
+                    weight_input <=weight_end_cost_lf[j] &&
+                    price_cost_lf_result[i] < 99999999)
                 {
                     price_cost_lf_result[i] = weight_input * price_cost_lf[j] / weight_average_cost_lf[j] * discount_cost_lf[j];
                     break;

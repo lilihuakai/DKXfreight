@@ -10,10 +10,10 @@
 #define IF_WRITE_CSV 0                                      //是否输出测试数据到文件
 
 #define MAX_NUM_WAREHOUSE 50                                //“仓库”最大数
-#define MAX_NUM_COUNTRY 200                                 //“国家”最大数
+#define MAX_NUM_COUNTRY 300                                 //“国家”最大数
 #define MAX_NUM_TRANS 300                                   //“运输方式”最大数
 #define MAX_NUM_AREA 300                                    //“分区方案”最大数
-#define MAX_NUM_AREA_COUNT 500                              //“分区方案”最大数
+#define MAX_NUM_AREA_COUNT 500                              //“分区方案-国家”最大数
 #define MAX_NUM_COST 300                                    //“物流费用”最大数
 #define MAX_NUM_ADDRESS 300                                 //“计费地点”最大数
 #define MAX_NUM_COST_OTHER 300                              //“物流杂费”最大数
@@ -553,22 +553,43 @@ int get_input_country()
         printf("请输入国家名称（支持模糊输入）：");
         gets(tmp);
         j = 0;
-        for (i = 0; i < row_country; i++)
-            if (strstr(country[i], tmp) != NULL)
-            {
-                j++;
-                country_input_id = i;
-            }
-        if (j == 0)
-            printf("不存在此国家，请重新输入！\n\n");
-        if (j > 1)
-            printf("输入内容过少，请重新输入！\n\n");
-        if (j == 1)
+        if (!strcmp(tmp, "美国") ||                                                   //特殊处理，用于模糊搜索
+            !strcmp(tmp, "苏丹") || 
+            !strcmp(tmp, "西班牙") || 
+            !strcmp(tmp, "索马里") || 
+            !strcmp(tmp, "俄罗斯") || 
+            !strcmp(tmp, "荷兰") || 
+            !strcmp(tmp, "马里") || 
+            !strcmp(tmp, "印度") || 
+            !strcmp(tmp, "圭亚那") || 
+            !strcmp(tmp, "几内亚") || 
+            !strcmp(tmp, "刚果"))
         {
-            printf("你输入的国家是'%s'\n\n\n", country[country_input_id]);
-            break;
+            for (i = 0; i < row_country; i++)
+                if (!strcmp(country[i], tmp))
+                {
+                    j = 1;
+                    country_input_id = i;
+                    break;
+                }
         }
+        else 
+        {
+            for (i = 0; i < row_country; i++)
+                if (strstr(country[i], tmp) != NULL)
+                {
+                    j++;
+                    country_input_id = i;
+                }
+            if (j == 0)
+                printf("不存在此国家，请重新输入！\n\n");
+            if (j > 1)
+                printf("输入内容过少，请重新输入！\n\n");
+        }
+        if (j == 1)
+            break;
     }
+    printf("你输入的国家是'%s'\n\n\n", country[country_input_id]);
 
     return 0;
 }

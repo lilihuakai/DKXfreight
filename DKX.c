@@ -14,7 +14,7 @@
 #define MAX_NUM_AREA 300                                    //¡°·ÖÇø·½°¸¡±×î´óÊý
 #define MAX_NUM_COST 10000                                  //¡°ÎïÁ÷·ÑÓÃ¡±×î´óÊý
 #define MAX_NUM_ADDRESS 300                                 //¡°¼Æ·ÑµØµã¡±×î´óÊý
-#define MAX_NUM_COST_OTHER 300                              //¡°ÎïÁ÷ÔÓ·Ñ¡±×î´óÊý
+#define MAX_NUM_COST_OTHER 10000                            //¡°ÎïÁ÷ÔÓ·Ñ¡±×î´óÊý
 
 #define MAX_NUM_RESULT 300                                  //¡°Êä³ö½á¹û¡±×î´óÊý
 
@@ -59,6 +59,7 @@ int row_cost_other;                                         //¡°ÎïÁ÷ÔÓ·Ñ¡±±í
 char name_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_STRING], head_name_cost_other[MAX_NUM_STRING];
 char area_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_STRING], head_area_cost_other[MAX_NUM_STRING];
 char type_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_STRING], head_type_cost_other[MAX_NUM_STRING];
+char unit_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_STRING], head_unit_cost_other[MAX_NUM_STRING];
 char weight_start_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_DOUBLE_STRING], head_weight_start_cost_other[MAX_NUM_STRING];
 char weight_end_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_DOUBLE_STRING], head_weight_end_cost_other[MAX_NUM_STRING];
 char price_cost_other[MAX_NUM_COST_OTHER][MAX_NUM_DOUBLE_STRING], head_price_cost_other[MAX_NUM_STRING];
@@ -328,6 +329,7 @@ int read_csv(char *filename, int *row, int column, char strline[MAX_NUM_ROW][MAX
             strcpy(head_name_cost_other, strtok(strTemp,","));
             strcpy(head_area_cost_other, strtok(NULL,","));
             strcpy(head_type_cost_other, strtok(NULL,","));
+            strcpy(head_unit_cost_other, strtok(NULL,","));
             strcpy(head_weight_start_cost_other, strtok(NULL,","));
             strcpy(head_weight_end_cost_other, strtok(NULL,","));
             strcpy(head_price_cost_other, strtok(NULL,","));
@@ -338,6 +340,7 @@ int read_csv(char *filename, int *row, int column, char strline[MAX_NUM_ROW][MAX
             strcpy(name_cost_other[i - 1], strtok(strTemp,","));
             strcpy(area_cost_other[i - 1], strtok(NULL,","));
             strcpy(type_cost_other[i - 1], strtok(NULL,","));
+            strcpy(unit_cost_other[i - 1], strtok(NULL,","));
             strcpy(weight_start_cost_other[i - 1], strtok(NULL,","));
             strcpy(weight_end_cost_other[i - 1], strtok(NULL,","));
             strcpy(price_cost_other[i - 1], strtok(NULL,","));
@@ -507,15 +510,17 @@ int write_csv(char *filename, int row)
             return -1;
         }
 
-        fprintf(fp, "%s,%s,%s,%s,%s,%s,%s\n", 
+        fprintf(fp, "%s,%s,%s,%s,%s,%s,%s,%s\n", 
             head_name_cost_other, 
             head_area_cost_other, 
             head_type_cost_other, 
+            head_unit_cost_other, 
             head_weight_start_cost_other, 
             head_weight_end_cost_other, 
             head_price_cost_other, 
             head_discount_cost_other);
         for(i = 0; i < row; i++)
+<<<<<<< HEAD
             fprintf(fp, "%s,%s,%s,%s,%s,%s,%s\n", 
                 name_cost_other[i], 
                 area_cost_other[i], 
@@ -524,6 +529,17 @@ int write_csv(char *filename, int row)
                 weight_end_cost_other[i], 
                 price_cost_other[i], 
                 discount_cost_other[i]);
+=======
+            fprintf(fp, "%s,%s,%s,%s,%lf,%lf,%lf,%lf\n", 
+                name_cost_other[i], 
+                area_cost_other[i], 
+                type_cost_other[i], 
+                unit_cost_other[i], 
+                weight_start_cost_other_lf[i], 
+                weight_end_cost_other_lf[i], 
+                price_cost_other_lf[i], 
+                discount_cost_other_lf[i]);
+>>>>>>> åœ¨ç‰©æµæ‚è´¹ä¸­æ–°å¢žä¸€åˆ—æ•°æ®
 
         fclose(fp);
     }
@@ -848,7 +864,7 @@ int get_price_cost_other()
                     }
                 if (flag == 0)                                                                      //Èç¹ûÔÓ·ÑÃ»ÓÐ°ó¶¨¸Ã²Ö¿â£¬ÔòÔÓ·ÑÎª0
                     break;
-                if (!strcmp(type_cost_other[j], "Æ±") && 
+                if (!strcmp(unit_cost_other[j], "Æ±") && 
                     weight_input > weight_start_cost_other_lf[j] && 
                     weight_input <=weight_end_cost_other_lf[j])
                 {
@@ -889,9 +905,14 @@ int run()
         "×Ü·ÑÓÃ");
     for (i = 0; i < num_result; i++)
     {
+        if (strlen(name_trans[name_trans_id_result[i]]) >= 16)
+            printf("%s\t", name_trans[name_trans_id_result[i]]);
+        else if (strlen(name_trans[name_trans_id_result[i]]) >= 8)
+            printf("%s\t\t", name_trans[name_trans_id_result[i]]);
+        else
+            printf("%s\t\t\t", name_trans[name_trans_id_result[i]]);
         if (sum_result[i] < 99999999)
-            printf("%s,%s,%s,%lf,%lf,%lf,%lf\n", 
-                name_trans[name_trans_id_result[i]], 
+            printf("%s %s %lf %lf %lf %lf\n", 
                 code_trans[code_trans_id_result[i]], 
                 area_area[area_area_id_result[i]], 
                 weight_input, 
@@ -899,8 +920,7 @@ int run()
                 price_cost_other_lf_result[i], 
                 sum_result[i]);
         else
-            printf("%s,%s,%s\n", 
-                name_trans[name_trans_id_result[i]], 
+            printf("%s %s\n", 
                 code_trans[code_trans_id_result[i]], 
                 "¸ÃÅÉËÍ·½Ê½²»Ö§³Ö¸Ã¹ú¼Ò");
     }

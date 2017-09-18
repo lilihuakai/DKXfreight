@@ -3,8 +3,6 @@
 #include<stdlib.h>
 
 #define MAX_NUM_READ_FILE_LINE 1024                         //文件读取时，每行最大字节数
-#define MAX_NUM_ROW 300                                     //数据行的最大数量
-#define MAX_NUM_COLUMN 10                                   //数据列的最大数量
 #define MAX_NUM_STRING 50                                   //字符串长度
 #define MAX_NUM_STRINGS 500                                 //超长字符串长度
 #define MAX_NUM_DOUBLE_STRING 16                            //数字字符串长度
@@ -14,7 +12,7 @@
 #define MAX_NUM_COUNTRY 300                                 //“国家”最大数
 #define MAX_NUM_TRANS 300                                   //“运输方式”最大数
 #define MAX_NUM_AREA 300                                    //“分区方案”最大数
-#define MAX_NUM_COST 300                                    //“物流费用”最大数
+#define MAX_NUM_COST 10000                                  //“物流费用”最大数
 #define MAX_NUM_ADDRESS 300                                 //“计费地点”最大数
 #define MAX_NUM_COST_OTHER 300                              //“物流杂费”最大数
 
@@ -91,132 +89,211 @@ double sum_result[MAX_NUM_RESULT];
 //读取文件
 int read_file()
 {
+    FILE *fp;
     int i;
-    char filename[MAX_NUM_STRING];
-    char strline[MAX_NUM_ROW][MAX_NUM_COLUMN][MAX_NUM_STRING];
+    char strTemp[MAX_NUM_READ_FILE_LINE];                   //读取缓冲区
 
-    strcpy(filename, "./基础数据/仓库.csv");
-    if (read_csv(filename, &row_warehouse, 1, strline))
+    /*
+    获取仓库
+    */
+    if((fp = fopen("./基础数据/仓库.csv","r")) == NULL)                  //判断文件是否存在及可读
     {
-        printf("读取'%s'文件失败!", filename);
+        printf("打开'仓库.csv'文件失败!\n");
         return -1;
     }
-    strcpy(head_warehouse, strline[0][0]);
-    for (i = 0; i < row_warehouse; i++)
+    i = 0;
+    while (1)                                               //循环读取每一行，直到文件尾
     {
-        strcpy(warehouse[i], strline[i + 1][0]);
+        fgets(strTemp,MAX_NUM_READ_FILE_LINE,fp);           //将fp所指向的文件一行内容读到strLine缓冲区
+        if(feof(fp))break;
+        strTemp[strlen(strTemp) - 1] = '\0';                //清除换行符
+        if (i == 0)
+        {
+            strcpy(head_warehouse, strtok(strTemp,","));
+        }
+        else
+        {
+            strcpy(warehouse[i - 1], strtok(strTemp,","));
+        }
+        i++;
     }
+    row_warehouse = i - 1;
+    fclose(fp);                                             //关闭文件
+    if (IF_WRITE_CSV == 1)
+        printf("读取'仓库.csv'文件成功!\n");
 
-    strcpy(filename, "./基础数据/国家.csv");
-    if (read_csv(filename, &row_country, 1, strline))
+    /*
+    获取国家
+    */
+    if((fp = fopen("./基础数据/国家.csv","r")) == NULL)                  //判断文件是否存在及可读
     {
-        printf("读取'%s'文件失败!", filename);
+        printf("打开'国家.csv'文件失败!\n");
         return -1;
     }
-    strcpy(head_country, strline[0][0]);
-    for (i = 0; i < row_country; i++)
+    i = 0;
+    while (1)                                               //循环读取每一行，直到文件尾
     {
-        strcpy(country[i], strline[i + 1][0]);
+        fgets(strTemp,MAX_NUM_READ_FILE_LINE,fp);           //将fp所指向的文件一行内容读到strLine缓冲区
+        if(feof(fp))break;
+        strTemp[strlen(strTemp) - 1] = '\0';                //清除换行符
+        if (i == 0)
+        {
+            strcpy(head_country, strtok(strTemp,","));
+        }
+        else
+        {
+            strcpy(country[i - 1], strtok(strTemp,","));
+        }
+        i++;
     }
+    row_country = i - 1;
+    fclose(fp);                                             //关闭文件
+    if (IF_WRITE_CSV == 1)
+        printf("读取'国家.csv'文件成功!\n");
 
-    strcpy(filename, "./基础数据/运输方式.csv");
-    if (read_csv(filename, &row_transport, 3, strline))
+    /*
+    获取运输方式
+    */
+    if((fp = fopen("./基础数据/运输方式.csv","r")) == NULL)                  //判断文件是否存在及可读
     {
-        printf("读取'%s'文件失败!", filename);
+        printf("打开'运输方式.csv'文件失败!\n");
         return -1;
     }
-    strcpy(head_code_trans, strline[0][0]);
-    strcpy(head_name_trans, strline[0][1]);
-    strcpy(head_ware_trans, strline[0][2]);
-    for (i = 0; i < row_transport; i++)
+    i = 0;
+    while (1)                                               //循环读取每一行，直到文件尾
     {
-        strcpy(code_trans[i], strline[i + 1][0]);
-        strcpy(name_trans[i], strline[i + 1][1]);
-        strcpy(ware_trans[i], strline[i + 1][2]);
+        fgets(strTemp,MAX_NUM_READ_FILE_LINE,fp);           //将fp所指向的文件一行内容读到strLine缓冲区
+        if(feof(fp))break;
+        strTemp[strlen(strTemp) - 1] = '\0';                //清除换行符
+        if (i == 0)
+        {
+            strcpy(head_code_trans, strtok(strTemp,","));
+            strcpy(head_name_trans, strtok(NULL,","));
+            strcpy(head_ware_trans, strtok(NULL,","));
+        }
+        else
+        {
+            strcpy(code_trans[i - 1], strtok(strTemp,","));
+            strcpy(name_trans[i - 1], strtok(NULL,","));
+            strcpy(ware_trans[i - 1], strtok(NULL,","));
+        }
+        i++;
     }
+    row_transport = i - 1;
+    fclose(fp);                                             //关闭文件
+    if (IF_WRITE_CSV == 1)
+        printf("读取'运输方式.csv'文件成功!\n");
 
-    strcpy(filename, "./基础数据/分区方案.csv");
-    if (read_csv(filename, &row_area, 4, strline))
+    /*
+    获取分区方案
+    */
+    if((fp = fopen("./基础数据/分区方案.csv","r")) == NULL)                  //判断文件是否存在及可读
     {
-        printf("读取'%s'文件失败!", filename);
+        printf("打开'分区方案.csv'文件失败!\n");
         return -1;
     }
-    strcpy(head_name_area, strline[0][0]);
-    strcpy(head_code_area, strline[0][1]);
-    strcpy(head_area_area, strline[0][2]);
-    strcpy(head_country_area, strline[0][3]);
-    for (i = 0; i < row_area; i++)
+    i = 0;
+    while (1)                                               //循环读取每一行，直到文件尾
     {
-        strcpy(name_area[i], strline[i + 1][0]);
-        strcpy(code_area[i], strline[i + 1][1]);
-        strcpy(area_area[i], strline[i + 1][2]);
-        strcpy(country_area[i], strline[i + 1][3]);
+        fgets(strTemp,MAX_NUM_READ_FILE_LINE,fp);           //将fp所指向的文件一行内容读到strLine缓冲区
+        if(feof(fp))break;
+        strTemp[strlen(strTemp) - 1] = '\0';                //清除换行符
+        if (i == 0)
+        {
+            strcpy(head_name_area, strtok(strTemp,","));
+            strcpy(head_code_area, strtok(NULL,","));
+            strcpy(head_area_area, strtok(NULL,","));
+            strcpy(head_country_area, strtok(NULL,","));
+        }
+        else
+        {
+            strcpy(name_area[i - 1], strtok(strTemp,","));
+            strcpy(code_area[i - 1], strtok(NULL,","));
+            strcpy(area_area[i - 1], strtok(NULL,","));
+            strcpy(country_area[i - 1], strtok(NULL,","));
+        }
+        i++;
     }
+    row_area = i - 1;
+    fclose(fp);                                             //关闭文件
+    if (IF_WRITE_CSV == 1)
+        printf("读取'分区方案.csv'文件成功!\n");
 
-    strcpy(filename, "./基础数据/物流费用.csv");
-    if (read_csv(filename, &row_cost, 8, strline))
+    /*
+    获取物流费用
+    */
+    if((fp = fopen("./基础数据/物流费用.csv","r")) == NULL)                  //判断文件是否存在及可读
     {
-        printf("读取'%s'文件失败!", filename);
+        printf("打开'物流费用.csv'文件失败!\n");
         return -1;
     }
-    strcpy(head_name_cost, strline[0][0]);
-    strcpy(head_area_cost, strline[0][1]);
-    strcpy(head_type_cost, strline[0][2]);
-    strcpy(head_weight_start_cost, strline[0][3]);
-    strcpy(head_weight_end_cost, strline[0][4]);
-    strcpy(head_weight_average_cost, strline[0][5]);
-    strcpy(head_price_cost, strline[0][6]);
-    strcpy(head_discount_cost, strline[0][7]);
-    for (i = 0; i < row_cost; i++)
+    i = 0;
+    while (1)                                               //循环读取每一行，直到文件尾
     {
-        strcpy(name_cost[i], strline[i + 1][0]);
-        strcpy(area_cost[i], strline[i + 1][1]);
-        strcpy(type_cost[i], strline[i + 1][2]);
-        strcpy(weight_start_cost[i], strline[i + 1][3]);
-        strcpy(weight_end_cost[i], strline[i + 1][4]);
-        strcpy(weight_average_cost[i], strline[i + 1][5]);
-        strcpy(price_cost[i], strline[i + 1][6]);
-        strcpy(discount_cost[i], strline[i + 1][7]);
+        fgets(strTemp,MAX_NUM_READ_FILE_LINE,fp);           //将fp所指向的文件一行内容读到strLine缓冲区
+        if(feof(fp))break;
+        strTemp[strlen(strTemp) - 1] = '\0';                //清除换行符
+        if (i == 0)
+        {
+            strcpy(head_name_cost, strtok(strTemp,","));
+            strcpy(head_area_cost, strtok(NULL,","));
+            strcpy(head_type_cost, strtok(NULL,","));
+            strcpy(head_weight_start_cost, strtok(NULL,","));
+            strcpy(head_weight_end_cost, strtok(NULL,","));
+            strcpy(head_weight_average_cost, strtok(NULL,","));
+            strcpy(head_price_cost, strtok(NULL,","));
+            strcpy(head_discount_cost, strtok(NULL,","));
+        }
+        else
+        {
+            strcpy(name_cost[i - 1], strtok(strTemp,","));
+            strcpy(area_cost[i - 1], strtok(NULL,","));
+            strcpy(type_cost[i - 1], strtok(NULL,","));
+            strcpy(weight_start_cost[i - 1], strtok(NULL,","));
+            strcpy(weight_end_cost[i - 1], strtok(NULL,","));
+            strcpy(weight_average_cost[i - 1], strtok(NULL,","));
+            strcpy(price_cost[i - 1], strtok(NULL,","));
+            strcpy(discount_cost[i - 1], strtok(NULL,","));
+        }
+        i++;
     }
+    row_cost = i - 1;
+    fclose(fp);                                             //关闭文件
+    if (IF_WRITE_CSV == 1)
+        printf("读取'物流费用.csv'文件成功!\n");
 
-    strcpy(filename, "./基础数据/计费地点.csv");
-    if (read_csv(filename, &row_address, 2, strline))
+    /*
+    获取计费地点
+    */
+    if((fp = fopen("./基础数据/计费地点.csv","r")) == NULL)                  //判断文件是否存在及可读
     {
-        printf("读取'%s'文件失败!", filename);
+        printf("打开'计费地点.csv'文件失败!\n");
         return -1;
     }
-    strcpy(head_name_address, strline[0][0]);
-    strcpy(head_ware_address, strline[0][1]);
-    for (i = 0; i < row_address; i++)
+    i = 0;
+    while (1)                                               //循环读取每一行，直到文件尾
     {
-        strcpy(name_address[i], strline[i + 1][0]);
-        strcpy(ware_address[i], strline[i + 1][1]);
+        fgets(strTemp,MAX_NUM_READ_FILE_LINE,fp);           //将fp所指向的文件一行内容读到strLine缓冲区
+        if(feof(fp))break;
+        strTemp[strlen(strTemp) - 1] = '\0';                //清除换行符
+        if (i == 0)
+        {
+            strcpy(head_name_address, strtok(strTemp,","));
+            strcpy(head_ware_address, strtok(NULL,","));
+        }
+        else
+        {
+            strcpy(name_address[i - 1], strtok(strTemp,","));
+            strcpy(ware_address[i - 1], strtok(NULL,","));
+        }
+        i++;
     }
+    row_address = i - 1;
+    fclose(fp);                                             //关闭文件
+    if (IF_WRITE_CSV == 1)
+        printf("读取'计费地点.csv'文件成功!\n");
 
-    strcpy(filename, "./基础数据/物流杂费.csv");
-    if (read_csv(filename, &row_cost_other, 7, strline))
-    {
-        printf("读取'%s'文件失败!", filename);
-        return -1;
-    }
-    strcpy(head_name_cost_other, strline[0][0]);
-    strcpy(head_area_cost_other, strline[0][1]);
-    strcpy(head_type_cost_other, strline[0][2]);
-    strcpy(head_weight_start_cost_other, strline[0][3]);
-    strcpy(head_weight_end_cost_other, strline[0][4]);
-    strcpy(head_price_cost_other, strline[0][5]);
-    strcpy(head_discount_cost_other, strline[0][6]);
-    for (i = 0; i < row_cost_other; i++)
-    {
-        strcpy(name_cost_other[i], strline[i + 1][0]);
-        strcpy(area_cost_other[i], strline[i + 1][1]);
-        strcpy(type_cost_other[i], strline[i + 1][2]);
-        strcpy(weight_start_cost_other[i], strline[i + 1][3]);
-        strcpy(weight_end_cost_other[i], strline[i + 1][4]);
-        strcpy(price_cost_other[i], strline[i + 1][5]);
-        strcpy(discount_cost_other[i], strline[i + 1][6]);
-    }
-
+<<<<<<< HEAD
     if (check_file())                                        //检测读取数据是否正确
         return -1;
 
@@ -230,34 +307,48 @@ int read_csv(char *filename, int *row, int column, char strline[MAX_NUM_ROW][MAX
     char strTemp[MAX_NUM_READ_FILE_LINE];                   //读取缓冲区
 
     if((fp = fopen(filename,"r")) == NULL)                  //判断文件是否存在及可读
+=======
+    /*
+    获取物流杂费
+    */
+    if((fp = fopen("./基础数据/物流杂费.csv","r")) == NULL)                  //判断文件是否存在及可读
+>>>>>>> 浼樺寲浜嗘枃鏈暟鎹幏鍙栫殑鏂瑰紡
     {
-        printf("打开'%s'文件失败!", filename);
+        printf("打开'物流杂费.csv'文件失败!\n");
         return -1;
     }
-
     i = 0;
     while (1)                                               //循环读取每一行，直到文件尾
     {
         fgets(strTemp,MAX_NUM_READ_FILE_LINE,fp);           //将fp所指向的文件一行内容读到strLine缓冲区
         if(feof(fp))break;
         strTemp[strlen(strTemp) - 1] = '\0';                //清除换行符
-        strcpy(strline[i][0], strtok(strTemp,","));
-        for (j = 1; j < column; j++)
+        if (i == 0)
         {
-            strcpy(strline[i][j], strtok(NULL,","));
+            strcpy(head_name_cost_other, strtok(strTemp,","));
+            strcpy(head_area_cost_other, strtok(NULL,","));
+            strcpy(head_type_cost_other, strtok(NULL,","));
+            strcpy(head_weight_start_cost_other, strtok(NULL,","));
+            strcpy(head_weight_end_cost_other, strtok(NULL,","));
+            strcpy(head_price_cost_other, strtok(NULL,","));
+            strcpy(head_discount_cost_other, strtok(NULL,","));
+        }
+        else
+        {
+            strcpy(name_cost_other[i - 1], strtok(strTemp,","));
+            strcpy(area_cost_other[i - 1], strtok(NULL,","));
+            strcpy(type_cost_other[i - 1], strtok(NULL,","));
+            strcpy(weight_start_cost_other[i - 1], strtok(NULL,","));
+            strcpy(weight_end_cost_other[i - 1], strtok(NULL,","));
+            strcpy(price_cost_other[i - 1], strtok(NULL,","));
+            strcpy(discount_cost_other[i - 1], strtok(NULL,","));
         }
         i++;
     }
-    *row = i - 1;
-
-    // for (i = 0; i < *row; i++)
-    // {
-    //     for (j = 0; j < column; j++)
-    //         printf("%s ", strline[i][j]);
-    //     printf("\n");
-    // }
-
+    row_cost_other = i - 1;
     fclose(fp);                                             //关闭文件
+    if (IF_WRITE_CSV == 1)
+        printf("读取'物流杂费.csv'文件成功!\n");
 
     return 0;
 }
@@ -298,7 +389,7 @@ int write_csv(char *filename, int row)
     {
         if((fp = fopen("./测试数据/仓库副本.csv","w")) == NULL)                  //判断文件是否存在及可写
         {
-            printf("打开'%s'文件失败!", filename);
+            printf("打开'%s'文件失败!\n", filename);
             return -1;
         }
 
@@ -313,7 +404,7 @@ int write_csv(char *filename, int row)
     {
         if((fp = fopen("./测试数据/国家副本.csv","w")) == NULL)                  //判断文件是否存在及可写
         {
-            printf("打开'%s'文件失败!", filename);
+            printf("打开'%s'文件失败!\n", filename);
             return -1;
         }
 
@@ -328,7 +419,7 @@ int write_csv(char *filename, int row)
     {
         if((fp = fopen("./测试数据/运输方式副本.csv","w")) == NULL)                  //判断文件是否存在及可写
         {
-            printf("打开'%s'文件失败!", filename);
+            printf("打开'%s'文件失败!\n", filename);
             return -1;
         }
 
@@ -343,7 +434,7 @@ int write_csv(char *filename, int row)
     {
         if((fp = fopen("./测试数据/分区方案副本.csv","w")) == NULL)                  //判断文件是否存在及可写
         {
-            printf("打开'%s'文件失败!", filename);
+            printf("打开'%s'文件失败!\n", filename);
             return -1;
         }
 
@@ -366,7 +457,7 @@ int write_csv(char *filename, int row)
     {
         if((fp = fopen("./测试数据/物流费用副本.csv","w")) == NULL)                  //判断文件是否存在及可写
         {
-            printf("打开'%s'文件失败!", filename);
+            printf("打开'%s'文件失败!\n", filename);
             return -1;
         }
 
@@ -397,7 +488,7 @@ int write_csv(char *filename, int row)
     {
         if((fp = fopen("./测试数据/计费地点副本.csv","w")) == NULL)                  //判断文件是否存在及可写
         {
-            printf("打开'%s'文件失败!", filename);
+            printf("打开'%s'文件失败!\n", filename);
             return -1;
         }
 
@@ -412,7 +503,7 @@ int write_csv(char *filename, int row)
     {
         if((fp = fopen("./测试数据/物流杂费副本.csv","w")) == NULL)                  //判断文件是否存在及可写
         {
-            printf("打开'%s'文件失败!", filename);
+            printf("打开'%s'文件失败!\n", filename);
             return -1;
         }
 

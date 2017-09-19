@@ -7,6 +7,7 @@
 #define MAX_NUM_STRINGS 500                                 //超长字符串长度
 #define MAX_NUM_DOUBLE_STRING 16                            //数字字符串长度
 #define IF_WRITE_CSV 0                                      //是否输出测试数据到文件
+#define IF_CHECK_INPUT 0                                    //是否输出输入的数据
 
 #define MAX_NUM_WAREHOUSE 50                                //“仓库”最大数
 #define MAX_NUM_COUNTRY 300                                 //“国家”最大数
@@ -76,10 +77,10 @@ char country_input[30];
 double sum[MAX_NUM_RESULT];
 =======
 int warehouse_input_id, country_input_id, num_result;                                //用户操作
-char name_area_id_result[MAX_NUM_RESULT];                                           //分区方案名称
-char name_trans_id_result[MAX_NUM_RESULT];                                          //运输方式名称
-char code_trans_id_result[MAX_NUM_RESULT];
-char area_area_id_result[MAX_NUM_RESULT];
+int name_area_id_result[MAX_NUM_RESULT];                                           //分区方案名称
+int name_trans_id_result[MAX_NUM_RESULT];                                          //运输方式名称
+int code_trans_id_result[MAX_NUM_RESULT];
+int area_area_id_result[MAX_NUM_RESULT];
 double weight_input;
 double price_cost_lf_result[MAX_NUM_RESULT];
 double price_cost_other_lf_result[MAX_NUM_RESULT];
@@ -381,6 +382,25 @@ int check_file()
     if (write_csv("物流杂费副本.csv", row_cost_other))
         return -1;
     return 0;
+}
+
+void check_input()
+{
+    int i;
+    printf("系统内的仓库数量：%d\n", warehouse_input_id);
+    printf("系统内的国家数量：%d\n\n", country_input_id);
+    printf("计算的运输方式数量：%d\n", num_result);
+    printf("输入的重量：%lf\n", weight_input);
+    for (i = 0; i < num_result; i++)
+    {
+        printf("输入的分区方案：%d\n", name_area_id_result[i]);
+        printf("输入的运输方式：%d\n", name_trans_id_result[i]);
+        printf("输入的运输编号：%d\n", code_trans_id_result[i]);
+        printf("输入的消费分区：%d\n", area_area_id_result[i]);
+        printf("输入的运输价格：%lf\n", price_cost_lf_result);
+        printf("输入的杂费价格：%lf\n", price_cost_other_lf_result);
+        printf("计算的总价：%lf\n\n", sum_result);
+    }
 }
 
 int write_csv(char *filename, int row)
@@ -917,8 +937,12 @@ int run()
     if (find_area())
         return -1;
 
+    if (IF_CHECK_INPUT != 0)
+        check_input();
     if (get_sum())
         return -1;
+    if (IF_CHECK_INPUT != 0)
+        check_input();
 
     if (write_csv_result())
         return -1;

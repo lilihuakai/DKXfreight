@@ -818,7 +818,7 @@ int get_sum()
 
 int get_price_cost()
 {
-    int i, j;
+    int i, j, k;
 
     for (i = 0; i < num_result; i++)
     {
@@ -826,12 +826,43 @@ int get_price_cost()
             if (!strcmp(name_cost[j], name_area[name_area_id_result[i]]) && 
                 !strcmp(area_cost[j], area_area[area_area_id_result[i]]))
             {
+                // “单价”
                 if (!strcmp(type_cost[j], "单价") && 
                     weight_input > weight_start_cost_lf[j] && 
                     weight_input <=weight_end_cost_lf[j] &&
                     price_cost_lf_result[i] < 99999999)
                 {
                     price_cost_lf_result[i] = weight_input * price_cost_lf[j] / weight_average_cost_lf[j] * discount_cost_lf[j];
+                    break;
+                }
+                // “总价”
+                if (!strcmp(type_cost[j], "总价") && 
+                    weight_input > weight_start_cost_lf[j] && 
+                    weight_input <=weight_end_cost_lf[j] &&
+                    price_cost_lf_result[i] < 99999999)
+                {
+                    price_cost_lf_result[i] = price_cost_lf[j] / weight_average_cost_lf[j] * discount_cost_lf[j];
+                    break;
+                }
+                // “总价”+“续单价""
+                if (!strcmp(type_cost[j], "续单价") && 
+                    weight_input > weight_start_cost_lf[j] && 
+                    weight_input <=weight_end_cost_lf[j] &&
+                    price_cost_lf_result[i] < 99999999)
+                {
+                    price_cost_lf_result[i] = (weight_input - weight_start_cost_lf[j]) * price_cost_lf[j] / weight_average_cost_lf[j] * discount_cost_lf[j];
+                    for (k = 0; k < row_cost; k++)
+                    {
+                        if (!strcmp(name_cost[k], name_area[name_area_id_result[i]]) && 
+                            !strcmp(area_cost[k], area_area[area_area_id_result[i]]) && 
+                            weight_input > weight_end_cost_lf[k])
+                        {
+                            if (!strcmp(type_cost[k], "总价"))
+                                price_cost_lf_result[i] += price_cost_lf[k];
+                            // if (!strcmp(type_cost[k], "续单价"))
+                            //     price_cost_lf_result[i] += price_cost_lf[k] * (weight_end_cost_lf[k] - weight_start_cost_lf[k]) / weight_average_cost_lf[k];
+                        }
+                    }
                     break;
                 }
             }
@@ -911,6 +942,7 @@ int run()
             printf("%s\t\t", name_trans[name_trans_id_result[i]]);
         else
             printf("%s\t\t\t", name_trans[name_trans_id_result[i]]);
+
         if (sum_result[i] < 99999999)
             printf("%s %s %lf %lf %lf %lf\n", 
                 code_trans[code_trans_id_result[i]], 

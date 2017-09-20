@@ -81,6 +81,7 @@ int name_area_id_result[MAX_NUM_RESULT];                                        
 int name_trans_id_result[MAX_NUM_RESULT];                                          //ÔËÊä·½Ê½Ãû³Æ
 int code_trans_id_result[MAX_NUM_RESULT];
 int area_area_id_result[MAX_NUM_RESULT];
+int num_best_result_id, best_result_id[MAX_NUM_RESULT];
 double weight_input;
 double price_cost_lf_result[MAX_NUM_RESULT];
 double price_cost_other_lf_result[MAX_NUM_RESULT];
@@ -361,25 +362,25 @@ int read_csv(char *filename, int *row, int column, char strline[MAX_NUM_ROW][MAX
 int check_file()
 {
     if (IF_WRITE_CSV == 0)return 0;
-    if (write_csv("²Ö¿â¸±±¾.csv", row_warehouse))
+    if (write_csv_test("²Ö¿â¸±±¾.csv", row_warehouse))
         return -1;
 
-    if (write_csv("¹ú¼Ò¸±±¾.csv", row_country))
+    if (write_csv_test("¹ú¼Ò¸±±¾.csv", row_country))
         return -1;
 
-    if (write_csv("ÔËÊä·½Ê½¸±±¾.csv", row_transport))
+    if (write_csv_test("ÔËÊä·½Ê½¸±±¾.csv", row_transport))
         return -1;
 
-    if (write_csv("·ÖÇø·½°¸¸±±¾.csv", row_area))
+    if (write_csv_test("·ÖÇø·½°¸¸±±¾.csv", row_area))
         return -1;
 
-    if (write_csv("ÎïÁ÷·ÑÓÃ¸±±¾.csv", row_cost))
+    if (write_csv_test("ÎïÁ÷·ÑÓÃ¸±±¾.csv", row_cost))
         return -1;
 
-    if (write_csv("¼Æ·ÑµØµã¸±±¾.csv", row_address))
+    if (write_csv_test("¼Æ·ÑµØµã¸±±¾.csv", row_address))
         return -1;
 
-    if (write_csv("ÎïÁ÷ÔÓ·Ñ¸±±¾.csv", row_cost_other))
+    if (write_csv_test("ÎïÁ÷ÔÓ·Ñ¸±±¾.csv", row_cost_other))
         return -1;
     return 0;
 }
@@ -404,7 +405,7 @@ void check_input()
     printf("\n\n");
 }
 
-int write_csv(char *filename, int row)
+int write_csv_test(char *filename, int row)
 {
     FILE *fp;
     int i;
@@ -623,8 +624,8 @@ int get_input()
         return -1;
     if (get_input_country())
         return -1;
-    if (get_input_weight())
-        return -1;
+    // if (get_input_weight())
+    //     return -1;
     return 0;
 }
 
@@ -973,64 +974,113 @@ void my_sort()
     }
 }
 
+void get_best_result()
+{
+    int i, tmp;
+
+    tmp = 0;
+    for (i = 1; i < num_result; i++)
+        if (sum_result[i] < sum_result[tmp])
+            tmp = i;
+
+    if (sum_result[tmp] < 99999999)
+    {
+        num_best_result_id = 1;
+        best_result_id[0] = tmp;
+        for (i = tmp + 1; i < num_result; i++)
+            if (sum_result[i] - sum_result[tmp] >= 0.000000 && sum_result[i] - sum_result[tmp] <= 0.000001)
+            {
+                best_result_id[num_best_result_id] = i;
+                num_best_result_id++;
+            }
+    }
+    else
+        num_best_result_id = 0;
+}
+
 int run()
 {
-    int i;
-    num_result = 0;
+    FILE *fp;
+    int i, j, tmp;
 
+    num_result = 0;
     if (find_code_and_name())
         return -1;
     if (find_area())
         return -1;
 
-    if (IF_CHECK_INPUT != 0)
-        check_input();
-    if (get_sum())
+    if((fp = fopen("·ÑÓÃ.csv","w")) == NULL)                  //ÅĞ¶ÏÎÄ¼şÊÇ·ñ´æÔÚ¼°¿ÉĞ´
+    {
+        printf("´ò¿ª'%s'ÎÄ¼şÊ§°Ü!", "·ÑÓÃ.csv");
         return -1;
-    if (IF_CHECK_INPUT != 0)
-        check_input();
+    }
 
-    my_sort();
-
-    if (write_csv_result())
-        return -1;
-
-    printf("·¢»õ²Ö£º%s\n", warehouse[warehouse_input_id]);
-    printf("Ä¿µÄµØ¹ú¼Ò£º%s\n", country[country_input_id]);
-    printf("ÖØÁ¿£º%lf\n\n", weight_input);
-    printf("%s,%s,%s,%s,%s,%s,%s\n", 
-        head_name_trans, 
-        head_code_trans, 
-        head_area_area, 
+    fprintf(fp, "·¢»õ²Ö,Ä¿µÄµØ¹ú¼Ò\n");
+    fprintf(fp, "%s,%s\n\n", warehouse[warehouse_input_id], country[country_input_id]);
+    fprintf(fp, "%s,%s,%s,%s,%s,%s,%s\n", 
         "ÖØÁ¿", 
         "ÔË·Ñ", 
         "ÔÓ·Ñ", 
-        "×Ü·ÑÓÃ");
-    for (i = 0; i < num_result; i++)
+        "×Ü·ÑÓÃ", 
+        head_name_trans, 
+        head_code_trans, 
+        head_area_area);
+    for (i = 1; i <= 2000; i++)
     {
-        if (strlen(name_trans[name_trans_id_result[i]]) >= 16)
-            printf("%s\t", name_trans[name_trans_id_result[i]]);
-        else if (strlen(name_trans[name_trans_id_result[i]]) >= 8)
-            printf("%s\t\t", name_trans[name_trans_id_result[i]]);
-        else
-            printf("%s\t\t\t", name_trans[name_trans_id_result[i]]);
-
-        if (sum_result[i] < 99999999)
-            printf("%s %s %lf %lf %lf %lf\n", 
-                code_trans[code_trans_id_result[i]], 
-                area_area[area_area_id_result[i]], 
+        weight_input = i * 0.001;
+        if (get_sum())
+            return -1;
+        get_best_result();
+        if (num_best_result_id == 0)
+        {
+            fprintf(fp, "%lf,²»Ö§³Ö´ËÖØÁ¿¶Î\n", weight_input);
+            continue;
+        }
+        for (j = 0; j < num_best_result_id; j++)
+            fprintf(fp, "%lf,%lf,%lf,%lf,%s,%s,%s\n", 
                 weight_input, 
-                price_cost_lf_result[i], 
-                price_cost_other_lf_result[i], 
-                sum_result[i]);
-        else
-            printf("%s %s\n", 
-                code_trans[code_trans_id_result[i]], 
-                "¸ÃÅÉËÍ·½Ê½²»Ö§³Ö¸Ã¹ú¼Ò");
+                price_cost_lf_result[best_result_id[j]], 
+                price_cost_other_lf_result[best_result_id[j]], 
+                sum_result[best_result_id[j]], 
+                name_trans[name_trans_id_result[best_result_id[j]]], 
+                code_trans[code_trans_id_result[best_result_id[j]]], 
+                area_area[area_area_id_result[best_result_id[j]]]);
+
+        // fprintf(fp, "\n");
+        // my_sort();
+        // fprintf(fp, "%s,%s,%s,%s,%s,%s,%s\n", 
+        //     head_name_trans, 
+        //     head_code_trans, 
+        //     head_area_area, 
+        //     "ÖØÁ¿", 
+        //     "ÔË·Ñ", 
+        //     "ÔÓ·Ñ", 
+        //     "×Ü·ÑÓÃ");
+        // for(j = 0; j < num_result; j++)
+        // {
+        //     if (sum_result[j] < 99999999)
+        //         fprintf(fp, "%s,%s,%s,%lf,%lf,%lf,%lf\n", 
+        //             name_trans[name_trans_id_result[j]], 
+        //             code_trans[code_trans_id_result[j]], 
+        //             area_area[area_area_id_result[j]], 
+        //             weight_input, 
+        //             price_cost_lf_result[j], 
+        //             price_cost_other_lf_result[j], 
+        //             sum_result[j]);
+        //     else
+        //         fprintf(fp, "%s,%s,%s\n", 
+        //             name_trans[name_trans_id_result[j]], 
+        //             code_trans[code_trans_id_result[j]], 
+        //             "¸ÃÅÉËÍ·½Ê½²»Ö§³Ö¸Ã¹ú¼Ò");
+        // }
     }
 
+<<<<<<< HEAD
     printf("\n");
 >>>>>>> 1.ä¿®æ”¹äº†æ‚è´¹è®¡ç®—é”™è¯¯çš„é—®é¢˜;2.æ·»åŠ äº†æ‚è´¹çš„è®¡è´¹åœ°ç‚¹çš„éªŒè¯;3.ä¿®æ”¹äº†åç§°é”™è¯¯çš„é—®é¢˜
+=======
+    fclose(fp);
+>>>>>>> æ ¹æ®æ–°éœ€æ±‚ä¿®æ”¹ç¨‹åºï¼Œè¾“å‡ºæ‰€æœ‰é‡é‡çš„æœ€ä¼˜ä»·æ ¼è¡¨
 
     return 0;
 }

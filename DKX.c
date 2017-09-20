@@ -397,10 +397,11 @@ void check_input()
         printf("输入的运输方式：%d\n", name_trans_id_result[i]);
         printf("输入的运输编号：%d\n", code_trans_id_result[i]);
         printf("输入的消费分区：%d\n", area_area_id_result[i]);
-        printf("输入的运输价格：%lf\n", price_cost_lf_result);
-        printf("输入的杂费价格：%lf\n", price_cost_other_lf_result);
-        printf("计算的总价：%lf\n\n", sum_result);
+        printf("输入的运输价格：%lf\n", price_cost_lf_result[i]);
+        printf("输入的杂费价格：%lf\n", price_cost_other_lf_result[i]);
+        printf("计算的总价：%lf\n\n", sum_result[i]);
     }
+    printf("\n\n");
 }
 
 int write_csv(char *filename, int row)
@@ -927,6 +928,51 @@ int get_price_cost_other()
     return 0;
 }
 
+void my_sort()
+{
+    int i, j, temp_int;
+    int flag = 1;
+    double temp_double;
+
+    while (flag)
+    {
+        flag = 0;
+        for (i = 0; i < num_result - 1; i++)
+            if (sum_result[i] > sum_result[i + 1])
+            {
+                temp_int = name_area_id_result[i];
+                name_area_id_result[i] = name_area_id_result[i + 1];
+                name_area_id_result[i + 1] = temp_int;
+
+                temp_int = name_trans_id_result[i];
+                name_trans_id_result[i] = name_trans_id_result[i + 1];
+                name_trans_id_result[i + 1] = temp_int;
+
+                temp_int = code_trans_id_result[i];
+                code_trans_id_result[i] = code_trans_id_result[i + 1];
+                code_trans_id_result[i + 1] = temp_int;
+
+                temp_int = area_area_id_result[i];
+                area_area_id_result[i] = area_area_id_result[i + 1];
+                area_area_id_result[i + 1] = temp_int;
+
+                temp_double = price_cost_lf_result[i];
+                price_cost_lf_result[i] = price_cost_lf_result[i + 1];
+                price_cost_lf_result[i + 1] = temp_double;
+
+                temp_double = price_cost_other_lf_result[i];
+                price_cost_other_lf_result[i] = price_cost_other_lf_result[i + 1];
+                price_cost_other_lf_result[i + 1] = temp_double;
+
+                temp_double = sum_result[i];
+                sum_result[i] = sum_result[i + 1];
+                sum_result[i + 1] = temp_double;
+
+                flag = 1;
+            }
+    }
+}
+
 int run()
 {
     int i;
@@ -943,6 +989,8 @@ int run()
         return -1;
     if (IF_CHECK_INPUT != 0)
         check_input();
+
+    my_sort();
 
     if (write_csv_result())
         return -1;

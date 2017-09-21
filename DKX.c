@@ -998,10 +998,11 @@ void get_best_result()
         num_best_result_id = 0;
 }
 
-int run()
+int write_csv_best_result(char path[MAX_NUM_STRING], char filename[MAX_NUM_STRING])
 {
     FILE *fp;
     int i, j, tmp;
+    char realname[MAX_NUM_STRING] = "./¼ÆËã½á¹û/";
 
     num_result = 0;
     if (find_code_and_name())
@@ -1009,9 +1010,13 @@ int run()
     if (find_area())
         return -1;
 
-    if((fp = fopen("·ÑÓÃ.csv","w")) == NULL)                  //ÅĞ¶ÏÎÄ¼şÊÇ·ñ´æÔÚ¼°¿ÉĞ´
+    strcat(realname, path);
+    strcat(realname, "/");
+    strcat(realname, filename);
+    strcat(realname, ".csv");
+    if((fp = fopen(realname,"w")) == NULL)                  //ÅĞ¶ÏÎÄ¼şÊÇ·ñ´æÔÚ¼°¿ÉĞ´
     {
-        printf("´ò¿ª'%s'ÎÄ¼şÊ§°Ü!", "·ÑÓÃ.csv");
+        printf("´ò¿ª'%s.csv'ÎÄ¼şÊ§°Ü!", filename);
         return -1;
     }
 
@@ -1080,7 +1085,51 @@ int run()
 >>>>>>> 1.ä¿®æ”¹äº†æ‚è´¹è®¡ç®—é”™è¯¯çš„é—®é¢˜;2.æ·»åŠ äº†æ‚è´¹çš„è®¡è´¹åœ°ç‚¹çš„éªŒè¯;3.ä¿®æ”¹äº†åç§°é”™è¯¯çš„é—®é¢˜
 =======
     fclose(fp);
+<<<<<<< HEAD
 >>>>>>> æ ¹æ®æ–°éœ€æ±‚ä¿®æ”¹ç¨‹åºï¼Œè¾“å‡ºæ‰€æœ‰é‡é‡çš„æœ€ä¼˜ä»·æ ¼è¡¨
+=======
+    return 0;
+}
+
+int run()
+{
+    int i, j;
+
+    for (i = 0; i < row_warehouse; i++)
+    {
+        for (j = 0; j < row_country; j++)
+            {
+                warehouse_input_id = i;
+                country_input_id = j;
+                memset(price_cost_lf_result, 0, sizeof(price_cost_lf_result));
+                memset(price_cost_other_lf_result, 0, sizeof(price_cost_other_lf_result));
+                memset(sum_result, 0, sizeof(sum_result));
+                printf("·¢ËÍ²Ö£º%s£¬Ä¿µÄ¹ú¼Ò£º%s\n", warehouse[warehouse_input_id], country[country_input_id]);
+                if (write_csv_best_result(warehouse[warehouse_input_id], country[country_input_id]))
+                    return -1;
+            }
+    }
+
+    // for (j = 0; j < row_country; j++)
+    // {
+    //     warehouse_input_id = 0;
+    //     country_input_id = j;
+    //     memset(price_cost_lf_result, 0, sizeof(price_cost_lf_result));
+    //     memset(price_cost_other_lf_result, 0, sizeof(price_cost_other_lf_result));
+    //     memset(sum_result, 0, sizeof(sum_result));
+    //     printf("·¢ËÍ²Ö£º%s£¬Ä¿µÄ¹ú¼Ò£º%s\n", warehouse[warehouse_input_id], country[country_input_id]);
+    //     if (write_csv_best_result(warehouse[warehouse_input_id], country[country_input_id]))
+    //         return -1;
+    // }
+
+    // memset(price_cost_lf_result, 0, sizeof(price_cost_lf_result));
+    // memset(price_cost_other_lf_result, 0, sizeof(price_cost_other_lf_result));
+    // memset(sum_result, 0, sizeof(sum_result));
+    // if (get_input())
+    //     return -1;
+    // if (write_csv_best_result(warehouse[warehouse_input_id], country[country_input_id]))
+    //     return -1;
+>>>>>>> ä¿®æ”¹ç¨‹åºçš„è¾“å…¥è¾“å‡ºåŠŸèƒ½ï¼Œå®ç°å¤šå›½å®¶æ–‡ä»¶æ•°æ®çš„åŠŸèƒ½
 
     return 0;
 }
@@ -1091,10 +1140,14 @@ int main()
         return -1;
     prepare_data();
 
+<<<<<<< HEAD
     memset(price_cost_lf_result, 0, sizeof(price_cost_lf_result));
     memset(price_cost_other_lf_result, 0, sizeof(price_cost_other_lf_result));
     memset(sum_result, 0, sizeof(sum_result));
     if (get_input())
+=======
+    if (run())
+>>>>>>> ä¿®æ”¹ç¨‹åºçš„è¾“å…¥è¾“å‡ºåŠŸèƒ½ï¼Œå®ç°å¤šå›½å®¶æ–‡ä»¶æ•°æ®çš„åŠŸèƒ½
         return -1;
 
     return 0;

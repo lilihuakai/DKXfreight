@@ -2,9 +2,9 @@
 #include<string.h>
 #include<stdlib.h>
 
-#define MAX_NUM_READ_FILE_LINE 1024                         //文件读取时，每行最大字节数
+#define MAX_NUM_READ_FILE_LINE 1200                         //文件读取时，每行最大字节数
 #define MAX_NUM_STRING 50                                   //字符串长度
-#define MAX_NUM_STRINGS 1000                                //超长字符串长度
+#define MAX_NUM_STRINGS 1200                                //超长字符串长度
 #define MAX_NUM_DOUBLE_STRING 16                            //数字字符串长度
 #define IF_WRITE_CSV 0                                      //是否输出测试数据到文件
 #define IF_CHECK_INPUT 0                                    //是否输出输入的数据
@@ -207,7 +207,7 @@ int read_file()
         fgets(strTemp,MAX_NUM_READ_FILE_LINE,fp);           //将fp所指向的文件一行内容读到strLine缓冲区
         if(feof(fp))break;
         if (strlen(strTemp) >= MAX_NUM_STRINGS)
-            printf("警告：此行数据已超过最大限制！\n");
+            printf("警告：此行数据已超过最大限制！长度为：%d\n", strlen(strTemp));
         strTemp[strlen(strTemp) - 1] = '\0';                //清除换行符
         if (i == 0)
         {
@@ -820,7 +820,7 @@ int write_csv_result()
         "总费用");
     for(i = 0; i < num_result; i++)
     {
-        if (sum_result[i] < 99999999)
+        if (price_cost_lf_result[i] < 88888888)
             fprintf(fp, "%s,%s,%s,%lf,%lf,%lf,%lf\n", 
                 name_trans[name_trans_id_result[i]], 
                 code_trans[code_trans_id_result[i]], 
@@ -904,10 +904,10 @@ int get_price_cost()
                     break;
                 }
             }
-        if (j == row_cost && 
+        if (j == row_cost &&                                                        //当没有找到合适的价格时，标记为不可用
             price_cost_lf_result[i] >= 0.000000 && 
             price_cost_lf_result[i] <= 0.000001)
-            price_cost_lf_result[i] = 99999999;
+            price_cost_lf_result[i] = 88888888;
     }
     return 0;
 }
@@ -999,7 +999,7 @@ void get_best_result()
         if (sum_result[i] < sum_result[tmp])
             tmp = i;
 
-    if (sum_result[tmp] < 99999999)
+    if (price_cost_lf_result[tmp] < 88888888)
     {
         num_best_result_id = 1;
         best_result_id[0] = tmp;
@@ -1082,7 +1082,7 @@ int write_csv_best_result(char path[MAX_NUM_STRING], char filename[MAX_NUM_STRIN
             "总费用");
         for(j = 0; j < num_result; j++)
         {
-            if (sum_result[j] < 99999999)
+            if (price_cost_lf_result[j] < 88888888)
                 fprintf(fp, "%s,%s,%s,%lf,%lf,%lf,%lf\n", 
                     name_trans[name_trans_id_result[j]], 
                     code_trans[code_trans_id_result[j]], 

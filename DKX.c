@@ -2,9 +2,9 @@
 #include<string.h>
 #include<stdlib.h>
 
-#define MAX_NUM_READ_FILE_LINE 1200                         //ÎÄ¼ş¶ÁÈ¡Ê±£¬Ã¿ĞĞ×î´ó×Ö½ÚÊı
+#define MAX_NUM_READ_FILE_LINE 2048                         //ÎÄ¼ş¶ÁÈ¡Ê±£¬Ã¿ĞĞ×î´ó×Ö½ÚÊı
 #define MAX_NUM_STRING 50                                   //×Ö·û´®³¤¶È
-#define MAX_NUM_STRINGS 1200                                //³¬³¤×Ö·û´®³¤¶È
+#define MAX_NUM_STRINGS 1600                                //³¬³¤×Ö·û´®³¤¶È
 #define MAX_NUM_DOUBLE_STRING 16                            //Êı×Ö×Ö·û´®³¤¶È
 #define IF_WRITE_CSV 0                                      //ÊÇ·ñÊä³ö²âÊÔÊı¾İµ½ÎÄ¼ş
 #define IF_CHECK_INPUT 0                                    //ÊÇ·ñÊä³öÊäÈëµÄÊı¾İ
@@ -12,7 +12,7 @@
 #define MAX_NUM_WAREHOUSE 50                                //¡°²Ö¿â¡±×î´óÊı
 #define MAX_NUM_COUNTRY 300                                 //¡°¹ú¼Ò¡±×î´óÊı
 #define MAX_NUM_TRANS 300                                   //¡°ÔËÊä·½Ê½¡±×î´óÊı
-#define MAX_NUM_AREA 800                                    //¡°·ÖÇø·½°¸¡±×î´óÊı
+#define MAX_NUM_AREA 1500                                   //¡°·ÖÇø·½°¸¡±×î´óÊı
 #define MAX_NUM_COST 10000                                  //¡°ÎïÁ÷·ÑÓÃ¡±×î´óÊı
 #define MAX_NUM_ADDRESS 300                                 //¡°¼Æ·ÑµØµã¡±×î´óÊı
 #define MAX_NUM_COST_OTHER 10000                            //¡°ÎïÁ÷ÔÓ·Ñ¡±×î´óÊı
@@ -635,14 +635,64 @@ void prepare_data()
 int get_input()
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     if (get_input_warehouse())
         return -1;
     if (get_input_country())
+=======
+    int choose;
+    char c;
+
+    choose = 0;
+    printf("\t1£º¸ù¾İ'²Ö¿â+¹ú¼Ò'µÄÊäÈëÄÚÈİ½øĞĞÔË·Ñ¼ÆËã\n");
+    printf("\t2£º¸ù¾İ'²Ö¿â'µÄÊäÈëÄÚÈİ½øĞĞÔË·Ñ¼ÆËã\n");
+    printf("\t3£º¸ù¾İ'¹ú¼Ò'µÄÊäÈëÄÚÈİ½øĞĞÔË·Ñ¼ÆËã\n");
+    printf("\t4£ºÈ«²¿½øĞĞÔË·Ñ¼ÆËã(»¨·ÑÊ±¼ä½Ï³¤£¬½÷É÷Ê¹ÓÃ)\n");
+    printf("\t5£ºÔË·Ñ¼ÆËã½á¹ûÖ»Êä³öµ½½çÃæ\n");
+    printf("\t6£ºÍË³ö\n\n");
+    while(1)
+    {
+        printf("ÇëÑ¡ÔñÊäÈëÊı×Ö£¬Ñ¡Ôñ¶ÔÓ¦µÄÊäÈëÄ£Ê½£º");
+        scanf("%d", &choose);c = getchar();
+        if (choose >= 1 && choose <=6)
+            break;
+        printf("ÊäÈë²»·ûºÏ¹æ·¶£¬ĞèÒªÖØĞÂÊäÈë¡£\n");
+    }
+    if (choose == 6)
+>>>>>>> å®Œå–„äº†å¤„ç†æµç¨‹ï¼Œæä¾›å¤šç§è¾“å…¥è¾“å‡ºæ¨¡å¼
         return -1;
-    // if (get_input_weight())
-    //     return -1;
-    return 0;
+    if (choose == 1)
+    {
+        memset(price_cost_lf_result, 0, sizeof(price_cost_lf_result));
+        memset(price_cost_other_lf_result, 0, sizeof(price_cost_other_lf_result));
+        memset(sum_result, 0, sizeof(sum_result));
+        if (get_input_warehouse())
+            return -1;
+        if (get_input_country())
+            return -1;
+    }
+    if (choose == 2)
+    {
+        if (get_input_warehouse())
+            return -1;
+    }
+    if (choose == 3)
+    {
+        if (get_input_country())
+            return -1;
+    }
+    if (choose == 5)
+    {
+        if (get_input_warehouse())
+            return -1;
+        if (get_input_country())
+            return -1;
+        if (get_input_weight())
+            return -1;
+    }
+
+    return choose;
 }
 
 int get_input_warehouse()
@@ -1016,9 +1066,10 @@ void get_best_result()
 
 int write_csv_best_result(char path[MAX_NUM_STRING], char filename[MAX_NUM_STRING])
 {
-    FILE *fp;
-    int i, j, tmp;
+    FILE *fp, *fp_detail;
+    int i, j;
     char realname[MAX_NUM_STRING] = "./¼ÆËã½á¹û/";
+    char realname_detail[MAX_NUM_STRING] = "./¼ÆËã½á¹û/";
 
     num_result = 0;
     if (find_code_and_name())
@@ -1026,13 +1077,18 @@ int write_csv_best_result(char path[MAX_NUM_STRING], char filename[MAX_NUM_STRIN
     if (find_area())
         return -1;
 
-    strcat(realname, path);
-    strcat(realname, "/");
-    strcat(realname, filename);
-    strcat(realname, ".csv");
-    if((fp = fopen(realname,"w")) == NULL)                  //ÅĞ¶ÏÎÄ¼şÊÇ·ñ´æÔÚ¼°¿ÉĞ´
+    strcat(realname, path);strcat(realname_detail, path);
+    strcat(realname, "/");strcat(realname_detail, "/");
+    strcat(realname, filename);strcat(realname_detail, filename);
+    strcat(realname, ".csv");strcat(realname_detail, "_Ã÷Ï¸.csv");
+    if((fp = fopen(realname,"w")) == NULL)                                  //ÅĞ¶ÏÎÄ¼şÊÇ·ñ´æÔÚ¼°¿ÉĞ´
     {
         printf("´ò¿ª'%s.csv'ÎÄ¼şÊ§°Ü!", filename);
+        return -1;
+    }
+    if((fp_detail = fopen(realname_detail,"w")) == NULL)                    //ÅĞ¶ÏÎÄ¼şÊÇ·ñ´æÔÚ¼°¿ÉĞ´
+    {
+        printf("´ò¿ª'%s_Ã÷Ï¸.csv'ÎÄ¼şÊ§°Ü!", filename);
         return -1;
     }
 
@@ -1046,21 +1102,33 @@ int write_csv_best_result(char path[MAX_NUM_STRING], char filename[MAX_NUM_STRIN
         head_name_trans, 
         head_code_trans, 
         head_area_area);
+    fprintf(fp_detail, "·¢»õ²Ö,Ä¿µÄµØ¹ú¼Ò\n");
+    fprintf(fp_detail, "%s,%s\n\n", warehouse[warehouse_input_id], country[country_input_id]);
+    fprintf(fp_detail, "%s,%s,%s,%s,%s,%s,%s\n", 
+        "ÖØÁ¿", 
+        "ÔË·Ñ", 
+        "ÔÓ·Ñ", 
+        "×Ü·ÑÓÃ", 
+        head_name_trans, 
+        head_code_trans, 
+        head_area_area);
     for (i = 1; i <= 2000; i++)
     {
         weight_input = i * 0.001;
         if (get_sum())
         {
             fclose(fp);
+            fclose(fp_detail);
             return -1;
         }
         get_best_result();
         if (num_best_result_id == 0)
         {
-            fprintf(fp, "%lf,²»Ö§³Ö´ËÖØÁ¿¶Î\n", weight_input);
+            fprintf(fp, "%lf,²»Ö§³Ö´Ë¹ú¼Ò\n", weight_input);
+            fprintf(fp_detail, "%lf,²»Ö§³Ö´Ë¹ú¼Ò\n", weight_input);
             continue;
         }
-        for (j = 0; j < num_best_result_id; j++)
+        for (j = 0; j < num_best_result_id; j++)                                        //ÔË·Ñ¼ÆËãÊä³ö±í
             fprintf(fp, "%lf,%lf,%lf,%lf,%s,%s,%s\n", 
                 weight_input, 
                 price_cost_lf_result[best_result_id[j]], 
@@ -1070,9 +1138,18 @@ int write_csv_best_result(char path[MAX_NUM_STRING], char filename[MAX_NUM_STRIN
                 code_trans[code_trans_id_result[best_result_id[j]]], 
                 area_area[area_area_id_result[best_result_id[j]]]);
 
-        fprintf(fp, "\n");
+        for (j = 0; j < num_best_result_id; j++)                                        //ÔË·Ñ¼ÆËãÊä³öÃ÷Ï¸±í
+            fprintf(fp_detail, "%lf,%lf,%lf,%lf,%s,%s,%s\n", 
+                weight_input, 
+                price_cost_lf_result[best_result_id[j]], 
+                price_cost_other_lf_result[best_result_id[j]], 
+                sum_result[best_result_id[j]], 
+                name_trans[name_trans_id_result[best_result_id[j]]], 
+                code_trans[code_trans_id_result[best_result_id[j]]], 
+                area_area[area_area_id_result[best_result_id[j]]]);
+        fprintf(fp_detail, "\n");
         my_sort();
-        fprintf(fp, "%s,%s,%s,%s,%s,%s,%s\n", 
+        fprintf(fp_detail, "%s,%s,%s,%s,%s,%s,%s\n", 
             head_name_trans, 
             head_code_trans, 
             head_area_area, 
@@ -1083,7 +1160,7 @@ int write_csv_best_result(char path[MAX_NUM_STRING], char filename[MAX_NUM_STRIN
         for(j = 0; j < num_result; j++)
         {
             if (price_cost_lf_result[j] < 88888888)
-                fprintf(fp, "%s,%s,%s,%lf,%lf,%lf,%lf\n", 
+                fprintf(fp_detail, "%s,%s,%s,%lf,%lf,%lf,%lf\n", 
                     name_trans[name_trans_id_result[j]], 
                     code_trans[code_trans_id_result[j]], 
                     area_area[area_area_id_result[j]], 
@@ -1092,12 +1169,12 @@ int write_csv_best_result(char path[MAX_NUM_STRING], char filename[MAX_NUM_STRIN
                     price_cost_other_lf_result[j], 
                     sum_result[j]);
             else
-                fprintf(fp, "%s,%s,%s\n", 
+                fprintf(fp_detail, "%s,%s,%s\n", 
                     name_trans[name_trans_id_result[j]], 
                     code_trans[code_trans_id_result[j]], 
                     "¸ÃÅÉËÍ·½Ê½²»Ö§³Ö¸Ã¹ú¼Ò");
         }
-        fprintf(fp, "\n\n");
+        fprintf(fp_detail, "\n\n");
     }
 
 <<<<<<< HEAD
@@ -1106,15 +1183,21 @@ int write_csv_best_result(char path[MAX_NUM_STRING], char filename[MAX_NUM_STRIN
 =======
     fclose(fp);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> æ ¹æ®æ–°éœ€æ±‚ä¿®æ”¹ç¨‹åºï¼Œè¾“å‡ºæ‰€æœ‰é‡é‡çš„æœ€ä¼˜ä»·æ ¼è¡¨
 =======
+=======
+    fclose(fp_detail);
+>>>>>>> å®Œå–„äº†å¤„ç†æµç¨‹ï¼Œæä¾›å¤šç§è¾“å…¥è¾“å‡ºæ¨¡å¼
     return 0;
 }
 
 int run()
 {
     int i, j;
+    int choose;
 
+<<<<<<< HEAD
     // for (i = 0; i < row_warehouse; i++)
     // {
     //     for (j = 0; j < row_country; j++)
@@ -1160,6 +1243,97 @@ int run()
     if (write_csv_best_result(warehouse[warehouse_input_id], country[country_input_id]))
         return -1;
 >>>>>>> ä¿®æ­£äº†ç”±äºæ•°æ®é‡è¶…è¿‡äº†è®¾å®šå€¼é€ æˆçš„æ•°æ®é”™è¯¯;ä¼˜åŒ–äº†ç¨‹åºé¢„è­¦æœºåˆ¶
+=======
+    choose = get_input();
+    if (choose == -1)
+        return -1;
+    if (choose == 1)
+    {
+        if (write_csv_best_result(warehouse[warehouse_input_id], country[country_input_id]))
+            return -1;
+    }
+    if (choose == 2)
+    {
+        for (i = 0; i < row_country; i++)
+        {
+            country_input_id = i;
+            memset(price_cost_lf_result, 0, sizeof(price_cost_lf_result));
+            memset(price_cost_other_lf_result, 0, sizeof(price_cost_other_lf_result));
+            memset(sum_result, 0, sizeof(sum_result));
+            if (write_csv_best_result(warehouse[warehouse_input_id], country[country_input_id]))
+                return -1;
+            printf("·¢ËÍ²Ö£º%s£¬Ä¿µÄ¹ú¼Ò£º%s\n", warehouse[warehouse_input_id], country[country_input_id]);
+        }
+    }
+    if (choose == 3)
+    {
+        for (i = 0; i < row_warehouse; i++)
+        {
+            warehouse_input_id = i;
+            memset(price_cost_lf_result, 0, sizeof(price_cost_lf_result));
+            memset(price_cost_other_lf_result, 0, sizeof(price_cost_other_lf_result));
+            memset(sum_result, 0, sizeof(sum_result));
+            if (write_csv_best_result(warehouse[warehouse_input_id], country[country_input_id]))
+                return -1;
+            printf("·¢ËÍ²Ö£º%s£¬Ä¿µÄ¹ú¼Ò£º%s\n", warehouse[warehouse_input_id], country[country_input_id]);
+        }
+    }
+    if (choose == 4)
+    {
+        for (i = 0; i < row_warehouse; i++)
+        {
+            for (j = 0; j < row_country; j++)
+                {
+                    warehouse_input_id = i;
+                    country_input_id = j;
+                    memset(price_cost_lf_result, 0, sizeof(price_cost_lf_result));
+                    memset(price_cost_other_lf_result, 0, sizeof(price_cost_other_lf_result));
+                    memset(sum_result, 0, sizeof(sum_result));
+                    if (write_csv_best_result(warehouse[warehouse_input_id], country[country_input_id]))
+                        return -1;
+                    printf("·¢ËÍ²Ö£º%s£¬Ä¿µÄ¹ú¼Ò£º%s\n", warehouse[warehouse_input_id], country[country_input_id]);
+                }
+        }
+    }
+    if (choose == 5)
+    {
+        num_result = 0;
+        if (find_code_and_name())
+            return -1;
+        if (find_area())
+            return -1;
+        if (get_sum())
+            return -1;
+
+        my_sort();
+        printf("%s,%s,%s,%s,%s,%s,%s\n", 
+            head_name_trans, 
+            head_code_trans, 
+            head_area_area, 
+            "ÖØÁ¿", 
+            "ÔË·Ñ", 
+            "ÔÓ·Ñ", 
+            "×Ü·ÑÓÃ");
+        for(i = 0; i < num_result; i++)
+        {
+            if (price_cost_lf_result[i] < 88888888)
+                printf("%s,%s,%s,%.2lf,%.2lf,%.2lf,%.2lf\n", 
+                    name_trans[name_trans_id_result[i]], 
+                    code_trans[code_trans_id_result[i]], 
+                    area_area[area_area_id_result[i]], 
+                    weight_input, 
+                    price_cost_lf_result[i], 
+                    price_cost_other_lf_result[i], 
+                    sum_result[i]);
+            else
+                printf("%s,%s,%s\n", 
+                    name_trans[name_trans_id_result[i]], 
+                    code_trans[code_trans_id_result[i]], 
+                    "¸ÃÅÉËÍ·½Ê½²»Ö§³Ö¸Ã¹ú¼Ò");
+        }
+        system("pause");
+    }
+>>>>>>> å®Œå–„äº†å¤„ç†æµç¨‹ï¼Œæä¾›å¤šç§è¾“å…¥è¾“å‡ºæ¨¡å¼
 
     return 0;
 }
@@ -1167,8 +1341,20 @@ int run()
 int main()
 {
     if (read_file())
+    {
+        system("pause");
         return -1;
+    }
     prepare_data();
+<<<<<<< HEAD
+=======
+    if (check_file())                                        //¼ì²â¶ÁÈ¡Êı¾İÊÇ·ñÕıÈ·
+    {
+        system("pause");
+        return -1;
+    }
+
+>>>>>>> å®Œå–„äº†å¤„ç†æµç¨‹ï¼Œæä¾›å¤šç§è¾“å…¥è¾“å‡ºæ¨¡å¼
 
 <<<<<<< HEAD
     memset(price_cost_lf_result, 0, sizeof(price_cost_lf_result));
@@ -1177,8 +1363,14 @@ int main()
     if (get_input())
 =======
     if (run())
+<<<<<<< HEAD
 >>>>>>> ä¿®æ”¹ç¨‹åºçš„è¾“å…¥è¾“å‡ºåŠŸèƒ½ï¼Œå®ç°å¤šå›½å®¶æ–‡ä»¶æ•°æ®çš„åŠŸèƒ½
+=======
+    {
+        system("pause");
+>>>>>>> å®Œå–„äº†å¤„ç†æµç¨‹ï¼Œæä¾›å¤šç§è¾“å…¥è¾“å‡ºæ¨¡å¼
         return -1;
+    }
 
     return 0;
 }

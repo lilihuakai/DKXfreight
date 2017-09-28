@@ -105,6 +105,7 @@ int main()
             }
     }
     printf("\n\n需要特殊处理的国家名称数量：%d\n", k);
+	system("pause");
 
     return 0;
 }

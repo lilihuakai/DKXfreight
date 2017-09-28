@@ -108,7 +108,7 @@ int read_file()
     return 0;
 }
 
-int is_repeat(int area_id, int country_id)
+int is_repeat_country_detail(int area_id, int country_id)
 {
     int i, num;
 
@@ -245,7 +245,7 @@ int is_repeat(int area_id, int country_id)
     return num;
 }
 
-int run()
+int is_repeat_country()
 {
     int i, j, k, country_id, area_id;
     char tmp[MAX_NUM_STRING];
@@ -283,7 +283,7 @@ int run()
                 printf("基础数据中不存在此国家'%s' %d %s\n", tmp, i, country_area[i]);
                 return -1;
             }
-            k = is_repeat(area_id, country_id);
+            k = is_repeat_country_detail(area_id, country_id);
             if (k > 1)
             {
                 printf("'%s'分区方案中'%s'的出现次数是：%d\n", name_area[area_id], country[country_id], k);
@@ -291,6 +291,22 @@ int run()
         }
     }
 
+    return 0;
+}
+
+int is_repeat_name()
+{
+    int i, j, flag;
+
+    for (i = 0; i < row_area; i++)
+    {
+        for (j = i + 1; j < row_area; j++)
+            if (!strcmp(name_area[j], name_area[i]) && strcmp(code_area[j], code_area[i]))
+            {
+                printf("'%s'分区方案名称被多次使用！\n", name_area[i]);
+                return -1;
+            }
+    }
     return 0;
 }
 
@@ -302,7 +318,10 @@ int main()
         return -1;
     }
 
-    if (run())
+    if (is_repeat_country())
+        return -1;
+
+    if (is_repeat_name())
         return -1;
 
     system("pause");

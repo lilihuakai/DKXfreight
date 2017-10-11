@@ -71,7 +71,7 @@ double price_cost_other_lf[MAX_NUM_COST_OTHER];
 double discount_cost_other_lf[MAX_NUM_COST_OTHER];
 
 
-int warehouse_input_id, country_input_id, num_result;                                //用户操作
+int warehouse_input_id, country_input_id, num_result;                              //用户操作
 int name_area_id_result[MAX_NUM_RESULT];                                           //分区方案名称
 int name_trans_id_result[MAX_NUM_RESULT];                                          //运输方式名称
 int code_trans_id_result[MAX_NUM_RESULT];
@@ -81,6 +81,8 @@ double weight_input;
 double price_cost_lf_result[MAX_NUM_RESULT];
 double price_cost_other_lf_result[MAX_NUM_RESULT];
 double sum_result[MAX_NUM_RESULT];
+
+int num_main_country, main_country[MAX_NUM_COUNTRY];                                        //常用国家
 
 int read_file();
 int check_data();
@@ -96,10 +98,12 @@ int get_price_cost();
 int get_price_cost_other();
 void my_sort();
 void get_best_result();
+int get_main_country();
 int run();
 int write_csv_test(char *filename, int row);
 int write_csv_result();
 int write_csv_best_result(char path[MAX_NUM_STRING], char filename[MAX_NUM_STRING]);
+int write_csv_main_country();
 
 //读取文件
 int read_file()
@@ -454,21 +458,22 @@ int get_input()
     char c;
 
     choose = 0;
-    printf("\t1：根据'仓库+国家'的输入内容进行运费计算\n");
-    printf("\t2：根据'仓库'的输入内容进行运费计算\n");
-    printf("\t3：根据'国家'的输入内容进行运费计算\n");
-    printf("\t4：全部进行运费计算(花费时间较长，谨慎使用)\n");
-    printf("\t5：运费计算结果只输出到界面\n");
-    printf("\t6：退出\n\n");
+    printf("\t1：根据'仓库+国家'的输入内容进行运费计算\n\n");
+    printf("\t2：根据'仓库'的输入内容进行运费计算\n\n");
+    printf("\t3：根据'国家'的输入内容进行运费计算\n\n");
+    printf("\t4：全部进行运费计算(花费时间较长，谨慎使用)\n\n");
+    printf("\t5：运费计算结果只输出到界面\n\n");
+    printf("\t6：对常用国家进行计算，并输出到文件\n\n");
+    printf("\t7：退出\n\n");
     while(1)
     {
         printf("请选择输入数字，选择对应的输入模式：");
         scanf("%d", &choose);c = getchar();
-        if (choose >= 1 && choose <=6)
+        if (choose >= 1 && choose <= 7)
             break;
         printf("输入不符合规范，需要重新输入。\n");
     }
-    if (choose == 6)
+    if (choose == 7)
         return -1;
     if (choose == 1)
     {
@@ -829,6 +834,144 @@ void get_best_result()
         num_best_result_id = 0;
 }
 
+int get_main_country()
+{
+    int i, j, k;
+    char area_main[] = "SZZYPY";
+    char tmp[MAX_NUM_STRING];
+
+    num_main_country = 0;
+    memset(main_country, 0, sizeof(main_country));
+    for (i = 0; i < row_area; i++)
+    {
+        if (!strcmp(code_area[i], area_main) && 
+            (!strcmp(area_area[i], "1") || 
+            !strcmp(area_area[i], "2") || 
+            !strcmp(area_area[i], "3") || 
+            !strcmp(area_area[i], "4") || 
+            !strcmp(area_area[i], "8")))
+        {
+            if (strlen(country_area[i]) == 0)
+            {
+                printf("警告：'%s'分区方案,'%s'分区中的'%s'为空！\n", 
+                    name_area[i], 
+                    area_area[i], 
+                    head_country_area);
+                system("pause");
+            }
+            j = 0;
+            while (j < strlen(country_area[i]))
+            {
+                k = 0;
+                while (country_area[i][j] != '|' && j < strlen(country_area[i]))
+                {
+                    tmp[k] = country_area[i][j];
+                    j++;k++;
+                }
+                j++;
+                tmp[k] = '\0';
+                k = 0;
+                while (k < row_country)
+                {
+                    if (!strcmp(tmp, country[k]) || 
+                        !strcmp(tmp, code_country[k]))
+                    {
+                        main_country[num_main_country] = k;
+                        num_main_country++;
+                        break;
+                    }
+                    k++;
+                }
+                if (k == row_country)
+                {
+                    printf("基础数据中不存在此国家'%s' %d %s\n", tmp, i, country_area[i]);
+                    return -1;
+                }
+            }
+        }
+    }
+    for (i = 0, j = 1; i < num_main_country; i++, j++)
+    {
+        // if (j % 3 == 0)
+        //     printf("\n");
+        // printf("%s\n", country[main_country[i]]);
+        if (!strcmp(country[main_country[i]], "阿根廷") || 
+            !strcmp(country[main_country[i]], "AR"))
+        {
+            printf("%s已存在\n", "阿根廷");
+            break;
+        }
+        if (!strcmp(country[main_country[i]], "巴西") || 
+            !strcmp(country[main_country[i]], "BR"))
+        {
+            printf("%s已存在\n", "巴西");
+            break;
+        }
+        if (!strcmp(country[main_country[i]], "沙特阿拉伯") || 
+            !strcmp(country[main_country[i]], "SA"))
+        {
+            printf("%s已存在\n", "沙特阿拉伯");
+            break;
+        }
+        if (!strcmp(country[main_country[i]], "俄罗斯") || 
+            !strcmp(country[main_country[i]], "RU"))
+        {
+            printf("%s已存在\n", "俄罗斯");
+            break;
+        }
+    }
+    k = 0;
+    while (k < row_country)
+    {
+        if (!strcmp("阿根廷", country[k]) || 
+            !strcmp("阿根廷", code_country[k]))
+        {
+            main_country[num_main_country] = k;
+            num_main_country++;
+            break;
+        }
+        k++;
+    }
+    k = 0;
+    while (k < row_country)
+    {
+        if (!strcmp("巴西", country[k]) || 
+            !strcmp("巴西", code_country[k]))
+        {
+            main_country[num_main_country] = k;
+            num_main_country++;
+            break;
+        }
+        k++;
+    }
+    k = 0;
+    while (k < row_country)
+    {
+        if (!strcmp("沙特阿拉伯", country[k]) || 
+            !strcmp("沙特阿拉伯", code_country[k]))
+        {
+            main_country[num_main_country] = k;
+            num_main_country++;
+            break;
+        }
+        k++;
+    }
+    k = 0;
+    while (k < row_country)
+    {
+        if (!strcmp("俄罗斯", country[k]) || 
+            !strcmp("俄罗斯", code_country[k]))
+        {
+            main_country[num_main_country] = k;
+            num_main_country++;
+            break;
+        }
+        k++;
+    }
+
+    return 0;
+}
+
 int run()
 {
     int i, j;
@@ -923,6 +1066,19 @@ int run()
         }
         write_csv_result();
         system("pause");
+    }
+    if (choose == 6)
+    {
+        if (get_main_country())
+            return -1;
+        for (i = 0; i < row_warehouse; i++)
+        {
+            warehouse_input_id = i;
+            if (write_csv_main_country())
+                return -1;
+            printf("常用国家最优邮费结算结果(%s).csv 已完成\n\n", warehouse[warehouse_input_id]);
+            // system("pause");
+        }
     }
 
     return 0;
@@ -1241,6 +1397,81 @@ int write_csv_best_result(char path[MAX_NUM_STRING], char filename[MAX_NUM_STRIN
 
     fclose(fp);
     fclose(fp_detail);
+    return 0;
+}
+
+int write_csv_main_country()
+{
+    FILE *fp;
+    int i, j, k;
+
+    char realname[MAX_NUM_STRING] = "./计算结果/常用国家最优邮费结算结果(";
+    strcat(realname, warehouse[warehouse_input_id]);
+    strcat(realname, ").csv");
+    if((fp = fopen(realname,"w")) == NULL)                                  //判断文件是否存在及可写
+    {
+        printf("打开'常用国家最优邮费结算结果(%s).csv'文件失败!", 
+            warehouse[warehouse_input_id]);
+        return -1;
+    }
+
+    fprintf(fp, "%s,%s,%s,%s,%s,%s,%s,%s\n", 
+        "国家", 
+        "重量", 
+        "运费", 
+        "杂费", 
+        "总费用", 
+        head_name_trans, 
+        head_code_trans, 
+        head_area_area);
+    for (k = 0; k < num_main_country; k++)
+    {
+        country_input_id = main_country[k];
+        num_result = 0;
+        memset(price_cost_lf_result, 0, sizeof(price_cost_lf_result));
+        memset(price_cost_other_lf_result, 0, sizeof(price_cost_other_lf_result));
+        memset(sum_result, 0, sizeof(sum_result));
+        if (find_code_and_name())
+        {
+            fclose(fp);
+            return -1;
+        }
+        if (find_area())
+        {
+            fclose(fp);
+            return -1;
+        }
+
+        for (i = 1; i <= 2000; i++)
+        {
+            weight_input = i * 0.001;
+            if (get_sum())
+            {
+                fclose(fp);
+                return -1;
+            }
+            get_best_result();
+            if (num_best_result_id == 0)
+            {
+                fprintf(fp, "%s,%lf,不支持此国家\n", 
+                    country[country_input_id], weight_input);
+                continue;
+            }
+            for (j = 0; j < num_best_result_id; j++)                                        //运费计算输出表
+                fprintf(fp, "%s,%lf,%lf,%lf,%lf,%s,%s,%s\n", 
+                    country[country_input_id], 
+                    weight_input, 
+                    price_cost_lf_result[best_result_id[j]], 
+                    price_cost_other_lf_result[best_result_id[j]], 
+                    sum_result[best_result_id[j]], 
+                    name_trans[name_trans_id_result[best_result_id[j]]], 
+                    code_trans[code_trans_id_result[best_result_id[j]]], 
+                    area_area[area_area_id_result[best_result_id[j]]]);
+        }
+        printf("已完成国家：%s\n", country[country_input_id]);
+    }
+
+    fclose(fp);
     return 0;
 }
 

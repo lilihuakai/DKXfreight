@@ -1404,6 +1404,7 @@ int write_csv_main_country()
 {
     FILE *fp;
     int i, j, k;
+    char last_transport[MAX_NUM_STRINGS], tmp[MAX_NUM_STRINGS];
 
     char realname[MAX_NUM_STRING] = "./计算结果/常用国家最优邮费结算结果(";
     strcat(realname, warehouse[warehouse_input_id]);
@@ -1415,15 +1416,7 @@ int write_csv_main_country()
         return -1;
     }
 
-    fprintf(fp, "%s,%s,%s,%s,%s,%s,%s,%s\n", 
-        "国家", 
-        "重量", 
-        "运费", 
-        "杂费", 
-        "总费用", 
-        head_name_trans, 
-        head_code_trans, 
-        head_area_area);
+    fprintf(fp, "%s,%s,%s,%s\n","国家", "开始重量", "结束重量", "最优运输方式");
     for (k = 0; k < num_main_country; k++)
     {
         country_input_id = main_country[k];
@@ -1442,6 +1435,7 @@ int write_csv_main_country()
             return -1;
         }
 
+        strcpy(last_transport, "");
         for (i = 1; i <= 2000; i++)
         {
             weight_input = i * 0.001;
@@ -1453,21 +1447,32 @@ int write_csv_main_country()
             get_best_result();
             if (num_best_result_id == 0)
             {
-                fprintf(fp, "%s,%lf,不支持此国家\n", 
-                    country[country_input_id], weight_input);
+                strcpy(tmp, "不存在合适的运输方式");
+            }
+            else{
+                strcpy(tmp, name_trans[name_trans_id_result[best_result_id[0]]]);
+                for (j = 1; j < num_best_result_id; j++)                                        //运费计算输出表
+                {
+                    strcat(tmp, "|");
+                    strcat(tmp, name_trans[name_trans_id_result[best_result_id[j]]]);
+                }
+            }
+            if (!strcmp(last_transport, ""))
+            {
+                strcpy(last_transport, tmp);
+                fprintf(fp, "%s,%lf", 
+                    country[country_input_id], (weight_input - 0.001));
                 continue;
             }
-            for (j = 0; j < num_best_result_id; j++)                                        //运费计算输出表
-                fprintf(fp, "%s,%lf,%lf,%lf,%lf,%s,%s,%s\n", 
-                    country[country_input_id], 
-                    weight_input, 
-                    price_cost_lf_result[best_result_id[j]], 
-                    price_cost_other_lf_result[best_result_id[j]], 
-                    sum_result[best_result_id[j]], 
-                    name_trans[name_trans_id_result[best_result_id[j]]], 
-                    code_trans[code_trans_id_result[best_result_id[j]]], 
-                    area_area[area_area_id_result[best_result_id[j]]]);
+            if (strcmp(last_transport, tmp))
+            {
+                fprintf(fp, ",%lf,%s\n", weight_input, last_transport);
+                strcpy(last_transport, tmp);
+                fprintf(fp, "%s,%lf", 
+                    country[country_input_id], (weight_input + 0.001));
+            }
         }
+        fprintf(fp, ",%lf,%s\n", weight_input, last_transport);
         printf("已完成国家：%s\n", country[country_input_id]);
     }
 
